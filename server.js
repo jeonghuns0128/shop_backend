@@ -34,16 +34,29 @@ app.listen(port, () => {
 })
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+  { 
+    origin : 'http://localhost:3002',
+    credentials : true
+  }));
 app.use(bodyParser.urlencoded({extended : true}))
 app.use(express.static(path.join(__dirname, 'shop/build')));
 
-app.use(session({secret : '!rjator', resave : true, saveUninitialized : false}))
+app.use(session({secret : '!rjator', resave : false, saveUninitialized : true, cookie :{
+  maxAge : 24 * 60 * 60 * 1000,
+  httpOnly : false,
+  secure : false
+}}))
 app.use(passport.initialize())
 app.use(passport.session())
 
+
+
 app.use('/auth', require('./routers/auth.js'))
 app.use('/logout', require('./routers/logout.js'))
+app.use('/login', require('./routers/login.js'))
+app.use('/cart', require('./routers/cart.js'))
+
 // passport.use(
 //   new KakaoStrategy(
 //      {

@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const { json } = require('body-parser');
 const passport = require('passport')
 const KakaoStrategy = require('passport-kakao').Strategy
 
@@ -35,10 +36,10 @@ passport.serializeUser(function (user, done) {
       accessToken : user.accessToken})
 })
 
-passport.deserializeUser(function (obj, done) {
-  console.log('deserialize')
-  console.log(`obj : ${obj}`)
-  done(null, obj)
+passport.deserializeUser(function (user, done) {
+  console.log('deserialize : ' + JSON.stringify(user))
+  console.log(`user : ${user}`)
+  done(null, user)
 })
 
 router.get('/kakao', passport.authenticate('kakao'))
