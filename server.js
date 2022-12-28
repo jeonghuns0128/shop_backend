@@ -12,7 +12,25 @@ const KakaoStrategy = require('passport-kakao').Strategy
 const session = require('express-session')
 var cors = require('cors');
 
-require('dotenv').config()
+//require('dotenv').config()
+
+let configPath;
+switch (process.env.NODE_ENV) {
+  case "prod":
+    configPath = `${__dirname}/config/.env.production`;
+    break;
+  case "dev":
+    configPath = `${__dirname}/config/.env.development`;
+    break;
+  case "local":
+    configPath = `${__dirname}/config/.env.local`;
+    console.log("configPath : " +  configPath)
+  default:
+    configPath = `${__dirname}/config/.env.local`;
+}
+require('dotenv').config({ path: configPath }); // path 설정
+
+
 
 MongoClient.connect(process.env.MONGODB_URL, function(err, client){
   if(err){
@@ -31,12 +49,13 @@ const conn = mysql.createConnection({
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
+  console.log('process.env.NODE_ENV : ' + process.env.NODE_ENV)
 })
 
 app.use(express.json());
 app.use(cors(
   { 
-    origin : 'http://localhost:3002',
+    origin : process.env.FRONT_URL,
     credentials : true
   }));
 app.use(bodyParser.urlencoded({extended : true}))
@@ -144,7 +163,7 @@ app.get('/clothes/shoes/:id', (req, res) => {
 
 app.get('/mypage', loginCheck, (req, res) => {
   console.log('로그인 완료!')
-  res.render('http://localhost:3002/mypage', {user : req.user})
+  res.render(process.env.FRONT_URL + '/mypage', {user : req.user})
 })
 
 function loginCheck(req, res, next){
@@ -155,6 +174,25 @@ function loginCheck(req, res, next){
     res.send('로그인 안했는데요?')
   }
 }
+
+app.post('/board/write', (req,res) => {
+  //console.log(req.body)
+  conn.query(
+    'insert into board(title,content) values(?, ?)', [req.body.title, req.body.content],function(err, results, fields){
+      res.redirect(process.env.FRONT_URL + '/board')
+    }
+  )
+
+})
+
+app.get('/boards', (req, res) => {
+  conn.query(
+    'SELECT id, title, content from board',function(err, results, fields){
+      console.log(results);
+      res.json(results);
+    }
+  )
+})
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'shop/build/index.html'));

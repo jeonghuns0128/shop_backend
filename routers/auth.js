@@ -54,7 +54,7 @@ router.get('/kakao/callback',
     console.log("테스트 : " + JSON.stringify(req.user))
   
     //let result = encodeURIComponent(req.user.profile.properties.nickname)
-    res.redirect('http://localhost:3002/mypage/');
+    res.redirect(process.env.FRONT_URL + '/mypage');
     
     //리다이렉트시 json으로 데이터 전송 해야함
   },

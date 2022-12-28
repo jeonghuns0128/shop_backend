@@ -3,7 +3,7 @@ const axios = require('axios');
 const { json } = require('body-parser');
 
 // 카카오 로그아웃
-router.get('/kakao', async (req,res)=>{
+router.get('/kakao', (req,res)=>{
   // https://kapi.kakao/com/v1/user/logout
   try {
     //const ACCESS_TOKEN = req.session.passport.user.accessToken;
@@ -25,7 +25,7 @@ router.get('/kakao', async (req,res)=>{
   // req.logout();
   // req.session.destroy();
   
-  res.redirect('http://localhost:3002/mypage');
+  res.redirect(process.env.FRONT_URL + '/mypage');
 })
 
 module.exports = router
