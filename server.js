@@ -15,6 +15,7 @@ var cors = require('cors');
 //require('dotenv').config()
 
 let configPath;
+console.log('process.env.NODE_ENV : ' + process.env.NODE_ENV)
 switch (process.env.NODE_ENV) {
   case "prod":
     configPath = `${__dirname}/config/.env.production`;
@@ -50,6 +51,7 @@ const conn = mysql.createConnection({
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
   console.log('process.env.NODE_ENV : ' + process.env.NODE_ENV)
+  console.log('host : ' + process.env.MYSQL_HOST)
 })
 
 app.use(express.json());
