@@ -63,6 +63,17 @@ router.get('/', (req, res) => {
         console.log(error)
     })
   })
+
+  router.get('/:id', (req, res) => {
+    let json = req.params
+    
+    selectBoardOne(json.id).then((value)=>{
+        console.log('value : ' + JSON.stringify(value))
+        res.json(value)
+    }).catch((error) => {
+        console.log(error)
+    })
+  })
   
   //mysql 버전
 //   router.get('/', (req, res) => {
@@ -84,6 +95,15 @@ router.get('/', (req, res) => {
           }
 
         return sendBoard
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function selectBoardOne(num) {
+    try {
+        const result = await axios.get(process.env.ELASTICSEARCH_URL + "/board/_doc/" + num)
+        return result.data._source
     } catch (err) {
       console.error(err);
     }
@@ -124,7 +144,7 @@ router.get('/', (req, res) => {
           query:{
             multi_match:{
               query : searchKeyword, 
-              fields : ["title", "content"]
+              fields : ["title.nori_discard", "content.nori_discard"]
             }
           }
         }
