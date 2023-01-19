@@ -74,6 +74,17 @@ router.get('/', (req, res) => {
         console.log(error)
     })
   })
+
+  router.get('/sort=:id', (req, res) => {
+    let json = req.params
+    
+    selectBoardSort(json.id).then((value)=>{
+        console.log('value : ' + JSON.stringify(value))
+        res.json(value)
+    }).catch((error) => {
+        console.log(error)
+    })
+  })
   
   //mysql 버전
 //   router.get('/', (req, res) => {
@@ -84,6 +95,56 @@ router.get('/', (req, res) => {
 //       }
 //     )
 //   })
+
+  async function selectBoardSort(num) {
+    
+    let sortKeyword = '' // 0 -> 좋아요순, 1 -> 리뷰순, 2 -> 조회수순
+
+    switch(num) {
+      case 0:
+        sortKeyword = like_cnt
+        break
+      case 1:
+        sortKeyword = review_cnt
+        break
+      case 2:
+        sortKeyword = view_cnt
+        break
+      default:
+        sortKeyword = ''
+        break
+    }
+
+    try {
+      const result =  await client.search({
+          
+          index: 'board',
+          body: {
+            query:{
+              match_all: {}
+              // multi_match:{
+              //   query : searchKeyword, 
+              //   fields : ["title.nori_discard", "content.nori_discard"]
+              // }
+            }, 
+            sort:[
+              {sortKeyword : "desc"}
+            ]
+          }
+        });
+        console.log('hits : ' + JSON.stringify(result.body.hits))
+      //   console.log('total : ' + result.body.hits.total.value)
+      //   console.log('keyword : ' + JSON.stringify(result.body.hits.hits[0]._source.field))
+  
+        let sendKeyword = {
+          totcnt : result.body.hits.total.value,
+          keyword : result.body.hits.hits
+        }
+        return sendKeyword
+      } catch (err) {
+        console.error(err);
+      }
+  }
 
   async function selectBoard() {
     try {
