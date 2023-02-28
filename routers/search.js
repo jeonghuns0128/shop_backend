@@ -15,14 +15,17 @@ async function searchKeyword(keyword) {
             }
         }
       });
+      console.log('statusCode : ' + JSON.stringify(result.statusCode))
       console.log('hits : ' + JSON.stringify(result.body.hits))
       console.log('total : ' + result.body.hits.total.value)
-      console.log('keyword : ' + JSON.stringify(result.body.hits.hits[0]._source.title))
+      //console.log('keyword : ' + JSON.stringify(result.body.hits.hits[0]._source.title))
 
       let sendKeyword = {
         totcnt : result.body.hits.total.value,
-        keyword : result.body.hits.hits
+        keyword : result.body.hits.hits,
+        statusCode : result.statusCode
       }
+      
       return sendKeyword
     } catch (err) {
       console.error(err);
@@ -79,7 +82,8 @@ async function searchKeyword(keyword) {
   
         let sendKeyword = {
           totcnt : result.body.hits.total.value,
-          keyword : result.body.hits.hits
+          keyword : result.body.hits.hits,
+          statusCode : result.statusCode
         }
         return sendKeyword
       } catch (err) {
@@ -110,7 +114,7 @@ router.get('/:keyword', (req, res) => {
     try {
       if(req.query.constructor === Object && Object.keys(req.query).length === 0){
         searchKeyword(json.keyword).then((value)=>{
-          console.log('value : ' + JSON.stringify(value))
+          console.log('value1 : ' + JSON.stringify(value))
           res.json(value)
         }).catch((error) => {
             console.log(error)
@@ -118,7 +122,7 @@ router.get('/:keyword', (req, res) => {
       } else{
         let jsonSort = req.query
         selectListSort(json.keyword, jsonSort.sort).then((value)=>{
-            console.log('value : ' + JSON.stringify(value))
+            console.log('value2 : ' + JSON.stringify(value))
             res.json(value)
         }).catch((error) => {
             console.log(error)
