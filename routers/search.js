@@ -12,7 +12,8 @@ async function searchKeyword(keyword) {
                 match: {
                     title: searchKeyword
                 }
-            }
+            },
+            size : 10
         }
       });
       console.log('statusCode : ' + JSON.stringify(result.statusCode))
@@ -91,6 +92,43 @@ async function searchKeyword(keyword) {
       }
   }
 
+  async function selectListPage(keyword, num) {
+    
+    let searchKeyword = keyword
+    let searchNum = num * 10
+
+    console.log("searchNum : " + searchNum)
+    try {
+    const result =  await client.search({
+        
+        index: 'product',
+        body:{
+            query: {
+                match: {
+                    title: searchKeyword
+                }
+            },
+            from : searchNum,
+            size : 10
+        }
+      });
+      console.log('statusCode : ' + JSON.stringify(result.statusCode))
+      console.log('hits : ' + JSON.stringify(result.body.hits))
+      console.log('total : ' + result.body.hits.total.value)
+      //console.log('keyword : ' + JSON.stringify(result.body.hits.hits[0]._source.title))
+
+      let sendKeyword = {
+        totcnt : result.body.hits.total.value,
+        keyword : result.body.hits.hits,
+        statusCode : result.statusCode
+      }
+      
+      return sendKeyword
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 //검색 시 form 전송 버전
 router.post('/', (req, res) => {
     console.log('start!!!')
@@ -120,13 +158,23 @@ router.get('/:keyword', (req, res) => {
             console.log(error)
         })
       } else{
-        let jsonSort = req.query
-        selectListSort(json.keyword, jsonSort.sort).then((value)=>{
-            console.log('value2 : ' + JSON.stringify(value))
-            res.json(value)
-        }).catch((error) => {
-            console.log(error)
-        })
+        if(req.query.sort !== undefined){
+          let jsonSort = req.query
+          selectListSort(json.keyword, jsonSort.sort).then((value)=>{
+              console.log('value2 : ' + JSON.stringify(value))
+              res.json(value)
+          }).catch((error) => {
+              console.log(error)
+          })
+        } else if(req.query.page !== undefined){
+          let jsonPage = req.query
+          selectListPage(json.keyword, jsonPage.page).then((value)=>{
+              console.log('value3 : ' + JSON.stringify(value))
+              res.json(value)
+          }).catch((error) => {
+              console.log(error)
+          })
+        }
       }  
     } catch (error) {
       if(error) res.status(406)
